@@ -25,8 +25,9 @@ final class NetworkOperationPerformerTests: XCTestCase {
     func test_operationIsNotExecuted_inAbnormalNetworkConditions() {
         NetworkMonitorStub.stubHasInternetConnection(false)
         let notificationCenter = NotificationCenterSpy()
+        let timer = TimerSpy()
         let exp = expectation(description: #function).inverted()
-        let sut = makeSUT(notificationCenter: notificationCenter)
+        let sut = makeSUT(notificationCenter: notificationCenter, timerAction: timer.scheduledTimer)
         
         sut.performNetworkOperation(using: {
             exp.fulfill()
@@ -34,16 +35,21 @@ final class NetworkOperationPerformerTests: XCTestCase {
         
         wait(for: [exp], timeout: 0.1)
         XCTAssertEqual(notificationCenter.log, [.addObserver(.init("NetworkStatusDidChange"))])
+        XCTAssertEqual(timer.log, [.scheduledTimer(3)])
     }
 }
 
 private extension NetworkOperationPerformerTests {
     
-    func makeSUT(notificationCenter: NotificationCenter = .default) -> NetworkOperationPerformer {
+    func makeSUT(
+        notificationCenter: NotificationCenter = .default,
+        timerAction: @escaping NetworkOperationPerformer.TimerAction = Timer.scheduledTimer
+    ) -> NetworkOperationPerformer {
         let networkMonitor = NetworkMonitorStub()
         return NetworkOperationPerformer(
             networkMonitor: networkMonitor,
-            notificationCenter: notificationCenter)
+            notificationCenter: notificationCenter,
+            timerAction: timerAction)
     }
     
     final class NetworkMonitorStub: NetworkMonitoring {
@@ -74,6 +80,20 @@ private extension NetworkOperationPerformerTests {
         
         override func removeObserver(_ observer: Any) {
             log.append(.removeObserver)
+        }
+    }
+    
+    final class TimerSpy {
+        
+        enum MethodCall: Equatable {
+            case scheduledTimer(TimeInterval)
+        }
+        
+        private(set) var log: [MethodCall] = []
+        
+        func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer {
+            log.append(.scheduledTimer(interval))
+            return Timer()
         }
     }
 }
