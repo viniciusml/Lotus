@@ -14,6 +14,17 @@ final class AsyncIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 0.1)
     }
     
+    func testAsyncOperationNotExecutedWithNoConnectionAvailable() {
+        let sut = NetworkOperationPerformer(networkMonitor: NetworkMonitorStub(connection: false))
+        let exp = expectation(description: #function).inverted()
+        
+        sut.performNetworkOperation(using: {
+            exp.fulfill()
+        }, withinSeconds: 3)
+        
+        wait(for: [exp], timeout: 0.1)
+    }
+    
     func testAsyncOperationExecutedWithNoConnectionAvailableButResumedInTime() {
         let networkMonitor = NetworkMonitorStub(connection: false)
         let sut = NetworkOperationPerformer(networkMonitor: networkMonitor)
