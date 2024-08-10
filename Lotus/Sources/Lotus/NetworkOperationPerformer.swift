@@ -31,6 +31,17 @@ public class NetworkOperationPerformer {
         }
     }
     
+    public func perform(withinSeconds timeoutDuration: TimeInterval, operation: @escaping () async -> ()) async {
+        await Task {
+            
+            self.performNetworkOperation(using: {
+                Task {
+                    await operation()
+                }
+            }, withinSeconds: timeoutDuration)
+        }.value
+    }
+    
     private func tryPerformingNetworkOperation(withinSeconds timeoutDuration: TimeInterval) {
         notificationCenter.addObserver(
             self,
