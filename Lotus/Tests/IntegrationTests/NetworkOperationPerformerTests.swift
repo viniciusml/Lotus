@@ -22,6 +22,20 @@ final class NetworkOperationPerformerTests: XCTestCase {
         
         wait(for: [exp], timeout: 0.1)
     }
+    
+    func test_operationIsExecuted_inAbnormalNetworkConditions() {
+        NetworkMonitorStub.stubHasInternetConnection(false)
+        let exp = expectation(description: #function)
+        exp.isInverted = true
+        let sut = NetworkOperationPerformer(networkMonitor: NetworkMonitorStub())
+        let networkOperationClosure: () -> Void = {
+            exp.fulfill()
+        }
+        
+        sut.performNetworkOperation(using: networkOperationClosure, withinSeconds: 3)
+        
+        wait(for: [exp], timeout: 0.1)
+    }
 }
 
 private extension NetworkOperationPerformerTests {
