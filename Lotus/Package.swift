@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "Lotus",
+    platforms: [.macOS(.v10_14)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -19,5 +20,9 @@ let package = Package(
         .testTarget(
             name: "LotusTests",
             dependencies: ["Lotus"]),
+        
+        .testTarget(
+            name: "IntegrationTests",
+            dependencies: ["Lotus"])
     ]
 )

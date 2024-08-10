@@ -4,12 +4,12 @@ import Network
 
 public class NetworkOperationPerformer {
     
-    private let networkMonitor: NetworkMonitor
+    private let networkMonitor: NetworkMonitoring
     private var timer: Timer?
     private var closure: (() -> Void)?
     
-    public init() {
-        self.networkMonitor = NetworkMonitor()
+    public init(networkMonitor: NetworkMonitoring) {
+        self.networkMonitor = networkMonitor
     }
     
     /// Attempts to perform a network operation using the given `closure`, within the given `timeoutDuration`.
@@ -42,7 +42,11 @@ public class NetworkOperationPerformer {
     }
 }
 
-private class NetworkMonitor {
+public protocol NetworkMonitoring {
+    func hasInternetConnection() -> Bool
+}
+
+private class NetworkMonitor: NetworkMonitoring {
     
     private let monitor = NWPathMonitor()
     
@@ -57,7 +61,7 @@ private class NetworkMonitor {
         monitor.start(queue: DispatchQueue(label: "NetworkMonitor"))
     }
     
-    func hasInternetConnection() -> Bool {
+    public func hasInternetConnection() -> Bool {
         return monitor.currentPath.status == .satisfied
     }
 }
