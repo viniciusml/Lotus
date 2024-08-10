@@ -10,10 +10,25 @@ import XCTest
 
 final class NetworkOperationPerformerTests: XCTestCase {
     
+    private var notificationCenter: NotificationCenterSpy!
+    private var timer: TimerSpy!
+    
+    override func setUp() {
+        super.setUp()
+        
+        notificationCenter = NotificationCenterSpy()
+        timer = TimerSpy()
+    }
+    
+    override func tearDown() {
+        notificationCenter = nil
+        timer = nil
+        
+        super.tearDown()
+    }
+    
     func test_operationIsExecuted_inNormalNetworkConditions() {
         NetworkMonitorStub.stubHasInternetConnection(true)
-        let notificationCenter = NotificationCenterSpy()
-        let timer = TimerSpy()
         let exp = expectation(description: #function)
         let sut = makeSUT(notificationCenter: notificationCenter, timerAction: timer.scheduledTimer)
         
@@ -26,10 +41,8 @@ final class NetworkOperationPerformerTests: XCTestCase {
         XCTAssertEqual(timer.log, [])
     }
     
-    func test_operationIsExecuted_inNormalNetworkConditions() async {
+    func test_operationIsExecutedAsync_inNormalNetworkConditions() async {
         NetworkMonitorStub.stubHasInternetConnection(true)
-        let notificationCenter = NotificationCenterSpy()
-        let timer = TimerSpy()
         let exp = expectation(description: #function)
         let sut = makeSUT(notificationCenter: notificationCenter, timerAction: timer.scheduledTimer)
         
@@ -37,15 +50,13 @@ final class NetworkOperationPerformerTests: XCTestCase {
             exp.fulfill()
         }
         
-        await fulfillment(of: [exp])
+        await fulfillment(of: [exp], timeout: 0.1)
         XCTAssertEqual(notificationCenter.log, [])
         XCTAssertEqual(timer.log, [])
     }
     
     func test_operationIsNotExecuted_inAbnormalNetworkConditions() {
         NetworkMonitorStub.stubHasInternetConnection(false)
-        let notificationCenter = NotificationCenterSpy()
-        let timer = TimerSpy()
         let exp = expectation(description: #function).inverted()
         let sut = makeSUT(notificationCenter: notificationCenter, timerAction: timer.scheduledTimer)
         
@@ -58,10 +69,8 @@ final class NetworkOperationPerformerTests: XCTestCase {
         XCTAssertEqual(timer.log, [.scheduledTimer(3)])
     }
     
-    func test_operationIsNotExecuted_inAbnormalNetworkConditions() async {
+    func test_operationIsNotExecutedAsync_inAbnormalNetworkConditions() async {
         NetworkMonitorStub.stubHasInternetConnection(false)
-        let notificationCenter = NotificationCenterSpy()
-        let timer = TimerSpy()
         let exp = expectation(description: #function).inverted()
         let sut = makeSUT(notificationCenter: notificationCenter, timerAction: timer.scheduledTimer)
         
@@ -69,7 +78,7 @@ final class NetworkOperationPerformerTests: XCTestCase {
             exp.fulfill()
         }
         
-        await fulfillment(of: [exp])
+        await fulfillment(of: [exp], timeout: 0.1)
         XCTAssertEqual(notificationCenter.log, [.addObserver(.init("NetworkStatusDidChange"))])
         XCTAssertEqual(timer.log, [.scheduledTimer(3)])
     }
