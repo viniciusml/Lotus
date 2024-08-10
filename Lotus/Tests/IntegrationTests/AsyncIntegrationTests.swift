@@ -26,6 +26,21 @@ final class AsyncIntegrationTests: XCTestCase {
         
         wait(for: [exp], timeout: 0.2)
     }
+    
+    func testAsyncOperationNotExecutedWithNoConnectionAvailableButNotResumedInTime() {
+        let networkMonitor = NetworkMonitorStub(connection: false)
+        let sut = NetworkOperationPerformer(networkMonitor: networkMonitor)
+        let exp = expectation(description: #function).inverted()
+        
+        sut.performNetworkOperation(using: {
+            exp.fulfill()
+        }, withinSeconds: 0.1)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: {
+            networkMonitor.flipConnectionStubbedStatusAndSimulateNotification()
+        })
+        
+        wait(for: [exp], timeout: 0.1)
+    }
 }
 
 private extension AsyncIntegrationTests {
@@ -50,5 +65,13 @@ private extension AsyncIntegrationTests {
                 userInfo: ["connected": self.hasInternetConnection()]
             )
         }
+    }
+}
+
+private extension XCTestExpectation {
+    
+    func inverted() -> Self {
+        isInverted = true
+        return self
     }
 }
