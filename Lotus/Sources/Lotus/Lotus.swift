@@ -3,13 +3,21 @@ import Foundation
 import Network
 
 public class NetworkOperationPerformer {
+    public typealias TimerAction = (TimeInterval, Bool, (@escaping @Sendable (Timer) -> Void)) -> Timer
     
     private let networkMonitor: NetworkMonitoring
+    private let notificationCenter: NotificationCenter
+    private let timerAction: TimerAction
+    
     private var timer: Timer?
     private var closure: (() -> Void)?
     
-    public init(networkMonitor: NetworkMonitoring) {
+    public init(networkMonitor: NetworkMonitoring,
+                notificationCenter: NotificationCenter,
+                timerAction: @escaping TimerAction = Timer.scheduledTimer) {
         self.networkMonitor = networkMonitor
+        self.notificationCenter = notificationCenter
+        self.timerAction = timerAction
     }
     
     /// Attempts to perform a network operation using the given `closure`, within the given `timeoutDuration`.
@@ -24,15 +32,16 @@ public class NetworkOperationPerformer {
     }
     
     private func tryPerformingNetworkOperation(withinSeconds timeoutDuration: TimeInterval) {
-        NotificationCenter.default.addObserver(
+        notificationCenter.addObserver(
             self,
             selector: #selector(networkStatusDidChange(_:)), name: .networkStatusDidChange,
             object: nil
         )
-        self.timer = Timer.scheduledTimer(withTimeInterval: timeoutDuration, repeats: false) { _ in
+        self.timer = timerAction(timeoutDuration, false) { [weak self] _ in
+            guard let self else { return }
             self.closure = nil
             self.timer = nil
-            NotificationCenter.default.removeObserver(self)
+            self.notificationCenter.removeObserver(self)
         }
     }
     
