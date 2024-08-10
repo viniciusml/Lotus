@@ -12,14 +12,18 @@ final class NetworkOperationPerformerTests: XCTestCase {
     
     func test_operationIsExecuted_inNormalNetworkConditions() {
         NetworkMonitorStub.stubHasInternetConnection(true)
+        let notificationCenter = NotificationCenterSpy()
+        let timer = TimerSpy()
         let exp = expectation(description: #function)
-        let sut = makeSUT()
+        let sut = makeSUT(notificationCenter: notificationCenter, timerAction: timer.scheduledTimer)
         
         sut.performNetworkOperation(using: {
             exp.fulfill()
         }, withinSeconds: 3)
         
         wait(for: [exp], timeout: 0.1)
+        XCTAssertEqual(notificationCenter.log, [])
+        XCTAssertEqual(timer.log, [])
     }
     
     func test_operationIsNotExecuted_inAbnormalNetworkConditions() {
