@@ -13,32 +13,34 @@ final class NetworkOperationPerformerTests: XCTestCase {
     func test_operationIsExecuted_inNormalNetworkConditions() {
         NetworkMonitorStub.stubHasInternetConnection(true)
         let exp = expectation(description: #function)
-        let sut = NetworkOperationPerformer(networkMonitor: NetworkMonitorStub())
-        let networkOperationClosure: () -> Void = {
-            exp.fulfill()
-        }
+        let sut = makeSUT()
         
-        sut.performNetworkOperation(using: networkOperationClosure, withinSeconds: 3)
+        sut.performNetworkOperation(using: {
+            exp.fulfill()
+        }, withinSeconds: 3)
         
         wait(for: [exp], timeout: 0.1)
     }
     
     func test_operationIsExecuted_inAbnormalNetworkConditions() {
         NetworkMonitorStub.stubHasInternetConnection(false)
-        let exp = expectation(description: #function)
-        exp.isInverted = true
-        let sut = NetworkOperationPerformer(networkMonitor: NetworkMonitorStub())
-        let networkOperationClosure: () -> Void = {
-            exp.fulfill()
-        }
+        let exp = expectation(description: #function).inverted()
+        let sut = makeSUT()
         
-        sut.performNetworkOperation(using: networkOperationClosure, withinSeconds: 3)
+        sut.performNetworkOperation(using: {
+            exp.fulfill()
+        }, withinSeconds: 3)
         
         wait(for: [exp], timeout: 0.1)
     }
 }
 
 private extension NetworkOperationPerformerTests {
+    
+    func makeSUT() -> NetworkOperationPerformer {
+        let networkMonitor = NetworkMonitorStub()
+        return NetworkOperationPerformer(networkMonitor: networkMonitor)
+    }
     
     final class NetworkMonitorStub: NetworkMonitoring {
         
@@ -51,5 +53,13 @@ private extension NetworkOperationPerformerTests {
         static func stubHasInternetConnection(_ value: Bool) {
             stubbedHasInternetConnection = value
         }
+    }
+}
+
+private extension XCTestExpectation {
+    
+    func inverted() -> Self {
+        isInverted = true
+        return self
     }
 }
