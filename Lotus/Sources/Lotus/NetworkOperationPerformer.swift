@@ -51,10 +51,6 @@ public class NetworkOperationPerformer {
     }
 }
 
-public protocol NetworkMonitoring {
-    func hasInternetConnection() -> Bool
-}
-
 private class NetworkMonitor: NetworkMonitoring {
     
     private let monitor = NWPathMonitor()
