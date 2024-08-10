@@ -13,7 +13,7 @@ public class NetworkOperationPerformer {
     private var closure: (() -> Void)?
     
     public init(networkMonitor: NetworkMonitoring,
-                notificationCenter: NotificationCenter,
+                notificationCenter: NotificationCenter = .default,
                 timerAction: @escaping TimerAction = Timer.scheduledTimer) {
         self.networkMonitor = networkMonitor
         self.notificationCenter = notificationCenter
