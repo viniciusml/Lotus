@@ -24,7 +24,7 @@ public class NetworkOperationPerformer: NetworkOperationPerforming {
     private var timer: Timer?
     private var currentTask: CancellableTask?
     
-    public init(networkMonitor: NetworkMonitoring,
+    public init(networkMonitor: NetworkMonitoring = NetworkMonitor(),
                 notificationCenter: NotificationCenter = .default,
                 timerAction: @escaping TimerAction = Timer.scheduledTimer) {
         self.networkMonitor = networkMonitor
@@ -80,11 +80,11 @@ public class NetworkOperationPerformer: NetworkOperationPerforming {
     }
 }
 
-private class NetworkMonitor: NetworkMonitoring {
+public class NetworkMonitor: NetworkMonitoring {
     
     private let monitor = NWPathMonitor()
     
-    init() {
+    public init() {
         startMonitoring()
     }
     
