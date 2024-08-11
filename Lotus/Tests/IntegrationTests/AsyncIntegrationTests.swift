@@ -124,6 +124,20 @@ final class AsyncIntegrationTests: XCTestCase {
         
         await fulfillment(of: [exp], timeout: 0.1)
     }
+    
+    func testCancel() {
+        let networkMonitor = NetworkMonitorStub(connection: false, notificationCenter: notificationCenter)
+        let sut = NetworkOperationPerformer(networkMonitor: networkMonitor, notificationCenter: notificationCenter)
+        let exp = expectation(description: #function).inverted()
+        
+        let task = sut.performNetworkOperation(using: {
+            exp.fulfill()
+        }, withinSeconds: 0.1)
+        task.cancel()
+        networkMonitor.flipConnectionStubbedStatusAndSimulateNotification()
+        
+        wait(for: [exp], timeout: 0.2)
+    }
 }
 
 private extension AsyncIntegrationTests {
