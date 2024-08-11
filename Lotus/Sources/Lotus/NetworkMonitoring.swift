@@ -8,5 +8,8 @@
 import Foundation
 
 public protocol NetworkMonitoring {
+    
+    /// Returns state of internet connection.
+    /// - Returns: `Bool`
     func hasInternetConnection() -> Bool
 }

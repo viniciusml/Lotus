@@ -2,12 +2,6 @@
 import Foundation
 import Network
 
-public protocol CancellableTask {
-    var operation: (() -> Void)? { get }
-    
-    func cancel()
-}
-
 public class NetworkOperationPerformer {
     public typealias TimerAction = (TimeInterval, Bool, (@escaping @Sendable (Timer) -> Void)) -> Timer
     
