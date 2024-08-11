@@ -153,6 +153,32 @@ final class AsyncIntegrationTests: XCTestCase {
         
         await fulfillment(of: [exp], timeout: 0.1)
     }
+    
+    // If the network is initially available, the given closure is invoked even if the task is cancelled
+    func testAsyncOperationExecutedWithConnectionAvailableAndTaskCancelled() {
+        let networkMonitor = NetworkMonitorStub(connection: true, notificationCenter: notificationCenter)
+        let sut = NetworkOperationPerformer(networkMonitor: networkMonitor, notificationCenter: notificationCenter)
+        let exp = expectation(description: #function)
+        
+        sut.performNetworkOperation(using: {
+            exp.fulfill()
+        }, withinSeconds: 3)
+        .cancel()
+        
+        wait(for: [exp], timeout: 0.1)
+    }
+    
+    func testAsyncOperationExecutedWithConnectionAvailableAndTaskCancelledAsync() async {
+        let networkMonitor = NetworkMonitorStub(connection: true, notificationCenter: notificationCenter)
+        let sut = NetworkOperationPerformer(networkMonitor: networkMonitor, notificationCenter: notificationCenter)
+        let exp = expectation(description: #function)
+        
+        await sut.perform(withinSeconds: 3) {
+            exp.fulfill()
+        }.cancel()
+        
+        await fulfillment(of: [exp], timeout: 0.1)
+    }
 }
 
 private extension AsyncIntegrationTests {
