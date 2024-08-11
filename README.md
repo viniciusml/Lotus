@@ -5,7 +5,7 @@
 -----
 
 The code is made testable by allowing all dependencies to be injected and by utilizing interfaces (protocols) rather than concrete implementations.
-For the `NetworkOperationPerformer`, which is the only concrete class made public in the framework, there are two methods:
+For the `NetworkOperationPerformer`, there are two methods:
 
 An `async` version:
 ```swift
