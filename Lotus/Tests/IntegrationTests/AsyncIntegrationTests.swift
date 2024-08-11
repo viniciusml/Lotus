@@ -125,7 +125,8 @@ final class AsyncIntegrationTests: XCTestCase {
         await fulfillment(of: [exp], timeout: 0.1)
     }
     
-    func testCancel() {
+    // If the network is initially not available and is cancelled before network being available in the given timeout, the given closure is not invoked
+    func testAsyncOperationNotExecutedWithNoConnectionAvailableAndCancelledBeforeNetworkResumedInTime() {
         let networkMonitor = NetworkMonitorStub(connection: false, notificationCenter: notificationCenter)
         let sut = NetworkOperationPerformer(networkMonitor: networkMonitor, notificationCenter: notificationCenter)
         let exp = expectation(description: #function).inverted()
@@ -137,6 +138,20 @@ final class AsyncIntegrationTests: XCTestCase {
         networkMonitor.flipConnectionStubbedStatusAndSimulateNotification()
         
         wait(for: [exp], timeout: 0.2)
+    }
+    
+    func testAsyncOperationNotExecutedWithNoConnectionAvailableAndCancelledBeforeNetworkResumedInTimeAsync() async {
+        let networkMonitor = NetworkMonitorStub(connection: false, notificationCenter: notificationCenter)
+        let sut = NetworkOperationPerformer(networkMonitor: networkMonitor, notificationCenter: notificationCenter)
+        let exp = expectation(description: #function).inverted()
+        
+        let task = await sut.perform(withinSeconds: 0.1) {
+            exp.fulfill()
+        }
+        task.cancel()
+        networkMonitor.flipConnectionStubbedStatusAndSimulateNotification()
+        
+        await fulfillment(of: [exp], timeout: 0.1)
     }
 }
 

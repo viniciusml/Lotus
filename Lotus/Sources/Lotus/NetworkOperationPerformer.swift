@@ -52,8 +52,9 @@ public class NetworkOperationPerformer {
         return task
     }
     
-    public func perform(withinSeconds timeoutDuration: TimeInterval, operation: @escaping () async -> ()) async {
-        await Task {
+    @discardableResult
+    public func perform(withinSeconds timeoutDuration: TimeInterval, operation: @escaping () async -> ()) async -> CancellableTask {
+        return await Task {
             
             self.performNetworkOperation(using: {
                 Task {
