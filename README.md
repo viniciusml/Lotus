@@ -43,4 +43,4 @@ The main interface takes into consideration a few directives:
 
 - [ ] Currently, it's only possible to handle one task at a time, which means that if for the same instance of `NetworkOperationPerformer`, there are two calls to `perform` methods, the first task will be overwritten.
 - [ ] The operation performer relies on notifications, which means that two instances might receive conflicting messages.
-- [x] There is the risk of causing a memory leak when triggering the timer, by not explicitly making `self weak`.
+- [x] There is the risk of causing a memory leak when triggering the timer, by not explicitly making `self weak`. **Fixed in https://github.com/viniciusml/Lotus/commit/e14029ba11465d8a0e64422c1d8a3f356679d874**
