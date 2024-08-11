@@ -2,7 +2,7 @@
 import Foundation
 import Network
 
-public class NetworkOperationPerformer {
+public class NetworkOperationPerformer: NetworkOperationPerforming {
     public typealias TimerAction = (TimeInterval, Bool, (@escaping @Sendable (Timer) -> Void)) -> Timer
     
     private final class NetworkTask: CancellableTask {
