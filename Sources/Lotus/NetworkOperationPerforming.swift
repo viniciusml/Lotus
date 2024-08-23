@@ -23,7 +23,7 @@ public protocol NetworkOperationPerforming {
     /// - Parameters:
     ///   - operation: the operation to be invoked
     ///   - timeoutDuration: the specified time interval for performing a re-try operation.
-    /// - Returns: `CancellableTask` - a task that can be cancelled
+    /// - Returns: `Cancellable` - a task that can be cancelled
     @discardableResult
-    func perform(withinSeconds timeoutDuration: TimeInterval, operation: @Sendable @escaping () async -> ()) async -> CancellableTask
+    func perform(withinSeconds timeoutDuration: TimeInterval, operation: @Sendable @escaping () async -> ()) async -> Cancellable
 }

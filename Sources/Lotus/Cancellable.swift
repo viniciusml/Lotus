@@ -1,5 +1,5 @@
 //
-//  CancellableTask.swift
+//  Cancellable.swift
 //  
 //
 //  Created by Vinicius Leal on 11/08/2024.
@@ -13,7 +13,7 @@ public protocol OperationDefining {
     var operation: (() -> Void)? { get }
 }
 
-public protocol CancellableTask {
+public protocol Cancellable {
     
     /// This method returns immediately, marking the task as being canceled.
     /// Once a task is marked as being canceled, `operation` is nulled.
@@ -21,4 +21,4 @@ public protocol CancellableTask {
     func cancel()
 }
 
-public typealias CancellableClosureBasedTask = CancellableTask & OperationDefining
+public typealias CancellableClosureBasedTask = Cancellable & OperationDefining

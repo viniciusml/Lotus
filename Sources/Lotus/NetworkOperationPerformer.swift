@@ -51,7 +51,7 @@ public class NetworkOperationPerformer: NetworkOperationPerforming {
     }
     
     @discardableResult
-    public func perform(withinSeconds timeoutDuration: TimeInterval, operation: @Sendable @escaping () async -> ()) async -> CancellableTask {
+    public func perform(withinSeconds timeoutDuration: TimeInterval, operation: @Sendable @escaping () async -> ()) async -> Cancellable {
         async let hasInternetConnection = await networkMonitor.hasInternetConnection()
         
         if await hasInternetConnection {
@@ -93,8 +93,6 @@ public class NetworkOperationPerformer: NetworkOperationPerforming {
     }
 }
 
-extension Task: CancellableTask {}
-
 public class NetworkMonitor: NetworkMonitoring {
     
     private let monitor = NWPathMonitor()
@@ -133,22 +131,6 @@ private extension NWPathMonitor {
     }
 }
 
-public extension TimeInterval {
-    
-    /**
-     The number of nanoseconds in the `TimeInterval`.
-     */
-    var nanoseconds: Double {
-        self * 1_000_000_000
-    }
-}
-
 private extension Notification.Name {
     static let networkStatusDidChange = Notification.Name("NetworkStatusDidChange")
 }
-
-/*
- - Relying on NotificationCenter for informing about asynchronously occurring events is considered an outdated way of programming. Structured concurrency makes such reliance unnecessary.
- - When using the sleep functionality of structured concurrency, there is no need for the Timer.
- - Your implementation of NetworkOperationPerformer is not thread-safe and cannot be safely used by multiple objects at the same time.
- */
