@@ -18,12 +18,13 @@ final class NetworkOperationPerformerTests: XCTestCase {
         
         notificationCenter = NotificationCenterSpy()
         timer = TimerSpy()
+        SleeperSpy.resetLog()
     }
     
     override func tearDown() {
         notificationCenter = nil
         timer = nil
-        
+        SleeperSpy.resetLog()
         super.tearDown()
     }
     
@@ -79,8 +80,9 @@ final class NetworkOperationPerformerTests: XCTestCase {
         }
         
         await fulfillment(of: [exp], timeout: 0.1)
-        XCTAssertEqual(notificationCenter.log, [.addObserver(.init("NetworkStatusDidChange"))])
-        XCTAssertEqual(timer.log, [.scheduledTimer(3)])
+        XCTAssertEqual(SleeperSpy.log, [.sleep(3000000000)])
+        XCTAssertEqual(notificationCenter.log, [])
+        XCTAssertEqual(timer.log, [])
     }
 }
 
@@ -93,6 +95,7 @@ private extension NetworkOperationPerformerTests {
         let networkMonitor = NetworkMonitorStub()
         return NetworkOperationPerformer(
             networkMonitor: networkMonitor,
+            sleepAction: SleeperSpy.sleep(nanoseconds:),
             notificationCenter: notificationCenter,
             timerAction: timerAction)
     }
@@ -102,6 +105,10 @@ private extension NetworkOperationPerformerTests {
         private static var stubbedHasInternetConnection: Bool = false
         
         func hasInternetConnection() -> Bool {
+            Self.stubbedHasInternetConnection
+        }
+        
+        func hasInternetConnection() async -> Bool {
             Self.stubbedHasInternetConnection
         }
         
@@ -139,6 +146,23 @@ private extension NetworkOperationPerformerTests {
         func scheduledTimer(withTimeInterval interval: TimeInterval, repeats: Bool, block: @escaping (Timer) -> Void) -> Timer {
             log.append(.scheduledTimer(interval))
             return Timer()
+        }
+    }
+    
+    final class SleeperSpy {
+        
+        enum MethodCall: Equatable {
+            case sleep(UInt64)
+        }
+        
+        private(set) static var log: [MethodCall] = []
+        
+        static func sleep(nanoseconds duration: UInt64) async throws {
+            log.append(.sleep(duration))
+        }
+        
+        static func resetLog() {
+            log = []
         }
     }
 }

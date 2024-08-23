@@ -7,14 +7,18 @@
 
 import Foundation
 
-public protocol CancellableTask {
+public protocol OperationDefining {
     
     /// The underlying operation of the task.
     var operation: (() -> Void)? { get }
+}
+
+public protocol CancellableTask {
     
-    
-    /// This method returns immediately, marking the task as being canceled. 
+    /// This method returns immediately, marking the task as being canceled.
     /// Once a task is marked as being canceled, `operation` is nulled.
     /// This method may be called on a task that is suspended.
     func cancel()
 }
+
+public typealias CancellableClosureBasedTask = CancellableTask & OperationDefining

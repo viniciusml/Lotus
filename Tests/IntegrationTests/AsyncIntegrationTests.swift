@@ -86,12 +86,12 @@ final class AsyncIntegrationTests: XCTestCase {
         let sut = NetworkOperationPerformer(networkMonitor: networkMonitor, notificationCenter: notificationCenter)
         let exp = expectation(description: #function)
         
-        await sut.perform(withinSeconds: 0.1) {
+        await networkMonitor.flipConnectionStubbedStatus(after: 0.1)
+        await sut.perform(withinSeconds: 0.2) {
             exp.fulfill()
         }
-        networkMonitor.flipConnectionStubbedStatusAndSimulateNotification()
         
-        await fulfillment(of: [exp], timeout: 0.2)
+        await fulfillment(of: [exp], timeout: 0.3)
     }
     
     // If the network is initially not available and becomes available only after the given timeout duration, the given closure is not invoked
@@ -195,6 +195,15 @@ private extension AsyncIntegrationTests {
         
         func hasInternetConnection() -> Bool {
             stubbedHasInternetConnection
+        }
+        
+        func hasInternetConnection() async -> Bool {
+            stubbedHasInternetConnection
+        }
+        
+        func flipConnectionStubbedStatus(after timeInterval: TimeInterval) async {
+            try? await Task.sleep(nanoseconds: UInt64(timeInterval.nanoseconds))
+            stubbedHasInternetConnection = true
         }
         
         func flipConnectionStubbedStatusAndSimulateNotification() {

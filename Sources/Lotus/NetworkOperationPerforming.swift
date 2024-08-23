@@ -14,9 +14,9 @@ public protocol NetworkOperationPerforming {
     /// - Parameters:
     ///   - closure: the operation to be invoked
     ///   - timeoutDuration: the specified time interval for performing a re-try operation.
-    /// - Returns: `CancellableTask` - a task that can be cancelled
+    /// - Returns: `CancellableClosureBasedTask` - a task that can be cancelled and retains an `operation` closure
     @discardableResult
-    func performNetworkOperation(using closure: @escaping () -> Void, withinSeconds timeoutDuration: TimeInterval) -> CancellableTask
+    func performNetworkOperation(using closure: @escaping () -> Void, withinSeconds timeoutDuration: TimeInterval) -> CancellableClosureBasedTask
     
     /// Performs an async network operation using the given `operation`, within the given `timeoutDuration`.
     /// If the network is not accessible within the given `timeoutDuration`, the operation is not performed.
@@ -25,5 +25,5 @@ public protocol NetworkOperationPerforming {
     ///   - timeoutDuration: the specified time interval for performing a re-try operation.
     /// - Returns: `CancellableTask` - a task that can be cancelled
     @discardableResult
-    func perform(withinSeconds timeoutDuration: TimeInterval, operation: @escaping () async -> ()) async -> CancellableTask
+    func perform(withinSeconds timeoutDuration: TimeInterval, operation: @Sendable @escaping () async -> ()) async -> CancellableTask
 }
