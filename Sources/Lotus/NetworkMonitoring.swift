@@ -9,7 +9,7 @@ import Foundation
 
 public protocol NetworkMonitoring {
     
-    /// Returns state of internet connection.
+    /// Returns a Boolean value that indicates whether the asynchronous condition is satisfied.
     /// - Returns: `Bool`
-    func hasInternetConnection() -> Bool
+    func hasInternetConnection() async -> Bool
 }
