@@ -1,6 +1,5 @@
 
 import Foundation
-import Network
 
 public class NetworkOperationPerformer: NetworkOperationPerforming {
     public typealias SleepAction = (UInt64) async throws -> Void
@@ -31,31 +30,5 @@ public class NetworkOperationPerformer: NetworkOperationPerforming {
         }
         
         return Task {}
-    }
-}
-
-public class NetworkMonitor: NetworkMonitoring {
-    
-    private let monitor = NWPathMonitor()
-    
-    public init() {}
-    
-    public func hasInternetConnection() async -> Bool {
-        await monitor.paths.contains(where: { $0.status == .satisfied })
-    }
-}
-
-private extension NWPathMonitor {
-    
-    var paths: AsyncStream<NWPath> {
-        AsyncStream { continuation in
-            pathUpdateHandler = { path in
-                continuation.yield(path)
-            }
-            continuation.onTermination = { [weak self] _ in
-                self?.cancel()
-            }
-            start(queue: DispatchQueue(label: "NetworkMonitor"))
-        }
     }
 }
