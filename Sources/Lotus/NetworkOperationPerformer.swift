@@ -38,13 +38,7 @@ public class NetworkMonitor: NetworkMonitoring {
     
     private let monitor = NWPathMonitor()
     
-    public init() {
-        startMonitoring()
-    }
-    
-    private func startMonitoring() {
-        monitor.start(queue: DispatchQueue(label: "NetworkMonitor"))
-    }
+    public init() {}
     
     public func hasInternetConnection() async -> Bool {
         await monitor.paths.contains(where: { $0.status == .satisfied })
@@ -61,6 +55,7 @@ private extension NWPathMonitor {
             continuation.onTermination = { [weak self] _ in
                 self?.cancel()
             }
+            start(queue: DispatchQueue(label: "NetworkMonitor"))
         }
     }
 }
